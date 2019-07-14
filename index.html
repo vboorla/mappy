@@ -1,0 +1,682 @@
+<!doctype html>
+<html>
+<head>
+    <!--<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" >-->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
+    <script src="https://cdn.jsdelivr.net/leaflet.locatecontrol/0.52.0/L.Control.Locate.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/leaflet.locatecontrol/0.52.0/L.Control.Locate.min.css"/>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css">
+    
+	<link rel="stylesheet" href="css/Control.FullScreen.css" type="text/css"/>
+	<link rel="stylesheet" href="css/leaflet-search.css" type="text/css"/>
+    <link rel="stylesheet" href="css/styles.css" type="text/css"/>
+    
+    <!--<script type='text/javascript'  src="leaflet-1.0.0-b1/leaflet.js"></script>-->
+    
+
+	<script type="text/javascript" src="js/leaflet-search.js"></script>
+    <!--<script type="text/javascript" src="js/L.Control.Locate.js"></script>-->
+    <script type="text/javascript" src="js/india_district.JS"></script>
+	<script type="text/javascript" src="js/india_state.js"></script>
+    <script type="text/javascript" src="js/Ward_boun_84.js"></script>
+    <script type="text/javascript" src="js/us-states.js"></script>
+	<script type="text/javascript" src="js/Control.FullScreen.js"></script>
+    <script type="text/javascript" src="js/leaflet-providers.js"></script>
+    <script type="text/javascript" src="js/myTracks.js"></script>
+    <script type="text/javascript" src="js/L.Control.Button.js"></script>
+    <script type="text/javascript" src="https://cdn.rawgit.com/calvinmetcalf/leaflet.shapefile/gh-pages/leaflet.shpfile.js"></script>
+    <script type="text/javascript" src="https://cdn.rawgit.com/calvinmetcalf/shapefile-js/gh-pages/dist/shp.js"></script>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw-src.js"></script>
+    <!--<script src="https://cdn.onemap.sg/leaflet/onemap-leaflet.js"></script>-->
+    
+	
+    <!--<script src="https://api.mqcdn.com/sdk/mapquest-js/v1.3.2/mapquest.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://api.mqcdn.com/sdk/mapquest-js/v1.3.2/mapquest.css"/>-->
+	
+	
+</head>
+<body>
+    <div id="map" class="map" >	
+	   <div id="coord" class="coord"> coordinates</div> 
+        <div id= "dragdrop" class="dragdrop"><h3> Drag &amp; Drop GeoJSONs, or zipped Shapefiles (.shp, .shx, .dbf) anywhere on the map </h3></div>
+	</div>
+	<a href='#' id='export' class="export"><img src="css/img/icons8-download-26.png"/> </a>
+  	<script type='text/javascript'>
+	
+        //L.mapquest.key = 'UnWPf3Ri8rFGGkGsYGApwA2dHgcMaRpa';
+        // add Stamen Watercolor to map.
+        //L.tileLayer.provider('Stamen.Watercolor').addTo(map);
+		
+        var /*mapquest = L.tileLayer('http://otile{s}.mqcdn.com/tiles/1.0.0/{type}/{z}/{x}/{y}.{ext}', {
+						attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+						maxZoom: 18,
+						type: 'map',
+						ext: 'jpg',
+						subdomains: '1234'
+						}),
+            
+            mapquest = L.mapquest.tileLayer('map'),*/
+            osm = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+						maxZoom: 19,
+						attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+						}),
+			esri_worldtopo = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+						attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community'
+						}),
+			esri_worldstrt = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+						attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012'
+						});
+        var onemap = L.tileLayer('https://maps-{s}.onemap.sg/v3/Default/{z}/{x}/{y}.png', {
+              detectRetina: true,
+              //Do not remove this attribution
+              attribution: '<img src="https://docs.onemap.sg/maps/images/oneMap64-01.png" style="height:20px;width:20px;"/> New OneMap | Map data &copy; contributors, <a href="http://SLA.gov.sg">Singapore Land Authority</a>'
+            });
+        var stamen_bw = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}{r}.png', {
+                attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            });
+        var watercolor = L.tileLayer('http://{s}.tile.stamen.com/watercolor/{z}/{x}/{y}.jpg', {
+                attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
+            });
+		
+		var baseMaps = {
+							//"Map Quest": mapquest,
+							"OSM": osm,
+							"ESRI World Topo": esri_worldtopo,
+							"ESRI World Street":esri_worldstrt,
+                            "One Map":onemap,
+                            "Stamen": stamen_bw,
+                            "Stamen Watercolor" : watercolor
+						};
+
+        
+        function style(feature) {
+			var randomColor = Math.floor(Math.random()*16777215).toString(16);
+            return {
+					fillColor: '#'+randomColor, 
+					opacity: 1,
+                    weight: 2,
+					color: 'white',
+                    //color: randomColor, //feature.properties.__color__,
+					dashArray: '3',
+					fillOpacity: 0.7                    
+				};
+		}
+		
+		function sstyle(feature) {
+			return {
+					fillColor: 'rgba(255, 75, 60, 0.93)', 
+					weight: 2,
+					opacity: 1,
+					color: 'white',
+					dashArray: '3',
+					fillOpacity: 0.7
+				};
+		}
+        
+        function wstyle(feature) {
+			return {
+					fillColor: 'rgba(155, 55, 40, 0.93)', 
+					weight: 2,
+					opacity: 1,
+					color: 'white',
+					dashArray: '3',
+					fillOpacity: 0.7
+				};
+		}
+		
+		var geojson, stategjson, wardsgjson, ageojson, shplayer;
+		
+		function onEachFeature(feature, layer) {
+			layer.on({
+				mouseover: highlightFeature,
+				mouseout: resetHighlight,
+				click: function() {
+                            if (feature.properties) {
+                                layer.bindPopup(Object.keys(feature.properties).map(function(k) {
+                                    if(k === '__color__'){
+                                        return;
+                                    }
+                                    return k + ": " + feature.properties[k];
+                                }).join("<br />"), {
+                                    maxHeight: 400
+                                });
+                            }
+                        }()//zoomToFeature                
+			});            
+		}
+
+		geojson = L.geoJson(districtsData, {
+			style: style,
+			onEachFeature: onEachFeature
+		}); //.addTo(map);
+		
+		stategjson = L.geoJson(statesData, {
+					style: sstyle,
+					onEachFeature: onEachFeature
+				}); //.addTo(map);
+		
+		wardsgjson = L.geoJson(wardsData, {
+					style: wstyle,
+					onEachFeature: onEachFeature
+				});//.addTo(map);
+		
+        /*
+		L.marker([12.8, 77.634]).addTo(map)	
+			.bindPopup("<b>Hello world!</b><br />I am a popup.").openPopup();
+			
+		L.circle([12.82, 77.6344], 500, {
+			color: 'red',
+			fillColor: '#f03',
+			fillOpacity: 0.5
+		}).addTo(map).bindPopup("I am a circle.");
+
+		L.polygon([
+			[12.826, 77.6347],
+			[12.817, 77.6341],
+			[12.832, 77.6339]
+		]).addTo(map).bindPopup("I am a polygon.");*/
+
+		var map = L.map('map',{
+						center: [12.91526, 77.6348],
+						zoom: 5,
+						layers: [osm],
+                        drawControl: true,
+                        fullscreenControl: true,
+						fullscreenControlOptions: { // optional
+							title:"Show me the fullscreen !"
+						}
+				});
+        
+
+		
+		var lc = L.control.layers(baseMaps, {"States":stategjson, "Districts":geojson, "Wards":wardsgjson}).addTo(map);
+        
+		function highlightFeature(e) {
+			var layer = e.target;
+
+			layer.setStyle({
+				weight: 5,
+				color: '#666',
+				dashArray: '',
+				fillOpacity: 0.7
+			});
+			
+			info.update(layer.feature.properties);
+
+			if (!L.Browser.ie && !L.Browser.opera) {
+				layer.bringToFront();
+			}
+		}
+		
+		function resetHighlight(e) {
+			
+			if (map.hasLayer(geojson)) {geojson.resetStyle(e.target);}
+			if (map.hasLayer(stategjson)) {stategjson.resetStyle(e.target);}
+            if (map.hasLayer(ageojson)) {ageojson.resetStyle(e.target);}
+            if (map.hasLayer(shplayer)) {shplayer.resetStyle(e.target);}
+            //stategjson.resetStyle(e.target);
+			info.update();
+		}
+		
+		function zoomToFeature(e) {
+                //console.log(e);
+     			map.fitBounds(e.target.getBounds());
+ 		}
+		
+        //L.control.locate().addTo(map);
+        // FeatureGroup is to store editable layers
+         
+        /*var drawnItems = new L.FeatureGroup();
+         map.addLayer(drawnItems);
+         var drawControl = new L.Control.Draw({
+             edit: {
+                 featureGroup: drawnItems
+             }
+         });
+         map.addControl(drawControl);*/
+        
+		var info = L.control();
+
+		info.onAdd = function (map) {
+			this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+			this.update();
+			return this._div;
+		};
+
+        
+        // method that we will use to update the control based on feature properties passed
+		info.update = function (props) {
+          if (props){
+                let propsa = Object.keys(props).map(function(k){
+                   return k +": " + props[k];
+                }).join("<br />");
+                //console.log(props);
+                this._div.innerHTML = '<h4>Feature Properties</h4>' + (map ? propsa : '<b>Hover over a feature</b>') ;  
+            }
+            else {
+                this._div.innerHTML = '<h4>Feature Properties</h4><b>Hover over a feature</b>' ;
+            }
+        };
+		
+        info.addTo(map)
+        var popup = L.popup();  
+		
+       
+       //////////////////////////////////////////////
+       ////drag and drop 
+        var dropbox = document.getElementById("map");
+        dropbox.addEventListener("dragenter", dragenter, false);
+        dropbox.addEventListener("dragover", dragover, false);
+        dropbox.addEventListener("drop", drop, false);
+        dropbox.addEventListener("dragleave", function() {
+            map.scrollWheelZoom.enable();
+        }, false);
+
+        function dragenter(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            map.scrollWheelZoom.disable();
+        }
+
+        function dragover(e) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+
+        function drop(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            map.scrollWheelZoom.enable();
+            var dt = e.dataTransfer;
+            var files = dt.files;
+
+            var i = 0;
+            var len = files.length;
+            if (!len) {
+                return
+            }
+            while (i < len) {
+                //console.log(files[i]);
+                handleFile(files[i]);
+                i++;
+            }
+        } 
+        
+        //handle the file drag dropped. 
+        
+        function makeString(buffer) {
+                var array = new Uint8Array(buffer);
+                var len = array.length;
+                var outString = "";
+                var i = 0;
+                while (i < len) {
+                    outString += String.fromCharCode(array[i++]);
+                }
+                return outString;
+            }
+        
+        function handleFile(file) { 
+             
+            if (file.name.slice(-3) === 'zip') { 
+                return handleZipFile(file) ;// console.log("zip file");
+            } 
+            var reader = new FileReader(); 
+            
+            //console.log(reader);
+            
+            reader.onload = function() {
+                var ext;
+                
+                if (reader.readyState !== 2 || reader.error) {
+                    return; 
+                } else {
+                    //console.log(reader.result);
+                    ext = file.name.split('.');
+                    lname = ext;
+                    ext = ext[ext.length - 1];
+                    data = reader.result;
+                    var jjson = JSON.parse(makeString(data));
+                    console.log(jjson.type);
+                    console.log(jjson);
+                    //data.length === 2 ? JSON.parse(makeString(data[0])) : data[0];
+                    //worker.json([reader.result, file.name.slice(0, (0 - (ext.length + 1)))], [reader.result]);
+                    ageojson = L.geoJson(jjson.features, {
+                        style: style,
+                        onEachFeature: onEachFeature
+                    });
+                    lc.addOverlay(ageojson.addTo(map),lname[0])
+                    map.fitBounds(ageojson.getBounds());
+                } 
+            }; 
+            reader.readAsArrayBuffer(file);
+        }  
+        
+        //More info: https://developer.mozilla.org/en-US/docs/Web/API/FileReader
+        function handleZipFile(file){
+            var reader = new FileReader();
+          reader.onload = function(){
+              if (reader.readyState != 2 || reader.error){
+                  return;
+              } else {
+                  convertToLayer(reader.result);
+            }
+          }
+          reader.readAsArrayBuffer(file);
+        }
+
+        function convertToLayer(buffer){
+            shp(buffer).then(function(geojson){	//More info: https://github.com/calvinmetcalf/shapefile-js
+            shplayer = L.shapefile(geojson, {
+                        style: style,
+                        onEachFeature: onEachFeature
+                    });
+            //console.log(geojson.fileName);
+            console.log(shplayer.getBounds());    
+           /* shplayer.on("data:loaded", function (e){
+                map.fitBounds(shplayer.getBounds());
+            });*/
+            lc.addOverlay(shplayer.addTo(map),geojson.fileName);//More info: https://github.com/calvinmetcalf/leaflet.shapefile
+            map.fitBounds(shplayer.getBounds());
+          });
+        }
+        
+        ///////////////////////////////////////////////////////////////////////////////////////
+        // Drawing and editing Geometry and Attributes
+        
+        var featureGroup = L.featureGroup().addTo(map);
+
+        var drawControl = new L.Control.Draw({
+            draw:false,
+            edit: {
+                featureGroup: featureGroup
+            }
+        }).addTo(map);
+        
+                
+        map.on('draw:created', function (e) {
+            console.log('created feature')
+                // Each time a feaute is created, it's added to the over arching feature group
+            featureGroup.addLayer(e.layer);
+            
+            /*var layer = event.layer
+            var feature = layer.feature = layer.feature || {};
+            feature.type = feature.type || "Feature";
+            var props = feature.properties = feature.properties || {};
+            props.desc = 'awesome description!';
+            props.ara = 0;
+            props.test = 'hey'
+            drawnItems.addLayer(layer);
+            addPopup(layer);*/
+        });
+        
+       /* function createCustomElementFromProperties(properties){
+            console.log('creating custom elements from properties')
+            var content = document.createElement("div");
+            for(var property in properties){
+                var tmpnode = document.createElement("input");
+                tmpnode.value = properties[property]
+                tmpnode.j_type = property
+                content.appendChild(tmpnode)
+            }
+            return content
+        }*/
+
+        /*function RetrieveObjFromCustomElement(custom_element){
+            console.log('retrieving custom elements from properties...')
+            var tmpobj = {};
+            for(var i = 0; i < custom_element.childNodes.length; i++){
+                var j_type = custom_element.childNodes[i].j_type
+                tmpobj[j_type] = custom_element.childNodes[i].value
+            }
+            return tmpobj
+        }*/
+
+        /*function FillCustomElementFromProperties(tmpobject, custom_element){
+          console.log('filling element with existing data...')
+          for(var i = 0; i < custom_element.childNodes.length; i++){
+            var j_type = custom_element.childNodes[i].j_type
+            custom_element.childNodes[i].value = tmpobject[j_type]
+          }
+            return custom_element
+        }*/
+
+        /*function addPopup(layer) {
+            var content = createCustomElementFromProperties(layer.feature.properties)
+          content.addEventListener("keyup", function () {
+            layer.feature.properties = RetrieveObjFromCustomElement(content);
+          });
+          layer.on("popupopen", function () {
+            content = FillCustomElementFromProperties(layer.feature.properties, content);
+            content.focus();
+          });
+          layer.bindPopup(content).openPopup();
+        }*/
+        
+        /*var sample_geojson_string =  '{"type": "FeatureCollection", "features":[{"type": "Feature","geometry": {"type": "Point","coordinates": [35.961, 31.943]},"properties": {"desc": "Dinagat Islands", "ara": 10, "test": "blablabla"}}, {"type": "Feature","geometry": {"type": "Point","coordinates": [35.951, 31.933]},"properties": {"desc": "Some cool place", "ara": 101, "test": "tt"}}]}'
+
+        var sample_geojson = JSON.parse(sample_geojson_string)
+
+        for(var i = 0; i < sample_geojson.features.length; i++){
+          var feature = sample_geojson.features[i]
+          var items = L.geoJson(feature).addTo(map);
+          items.on('click', function(event){
+            addPopup(event.layer)
+          })
+          drawnItems.addLayer(items)
+        }*/
+		///////////////////////////////////////////////////////////////////////////////////////
+         //////////////////////////////////////////////
+        // custom control to delete all the features in the map draw using the draw control above.
+        var deleteAllControl = L.Control.extend({
+ 
+          options: {
+            position: 'topleft' 
+            //control position - allowed: 'topleft', 'topright', 'bottomleft', 'bottomright'
+          },
+
+          onAdd: function (map) {
+                var container = L.DomUtil.create('div', 'delete-all leaflet-bar leaflet-control leaflet-control-custom');
+            container.style.backgroundColor = 'white';     
+            container.style.backgroundImage = "url(css/img/icons8-delete-24.png)";
+            container.style.backgroundSize = "30px 30px";
+            container.style.width = '30px';
+            container.style.height = '30px';
+            container.onclick = function(){
+                console.log(map.hasLayer());
+                console.log(map);
+                //map.fitBounds(L.geojson.getBounds);
+                featureGroup.clearLayers();
+                console.log('All Features Deleted !!!');
+            }
+            return container;
+          }
+        });
+        
+        
+        map.addControl(new deleteAllControl());
+        ////////////////////////////////////////////////
+        //////////////////////////////////////////////
+        // custom control to downlaod all the features in the map draw using the draw control above.
+        document.getElementById('export').onclick = function(e) {
+            // Extract GeoJson from featureGroup
+            var data = featureGroup.toGeoJSON();
+
+            // Stringify the GeoJson
+            var convertedData = 'text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(data));
+
+            // Create export
+            document.getElementById('export').setAttribute('href', 'data:' + convertedData);
+            document.getElementById('export').setAttribute('download','data.geojson');
+        }
+        
+        ////////////////////////////////////////////////
+        
+         ////////////////////////////////////////////////
+        
+       //var controlSearch = new
+           map.addControl(new L.Control.Search({
+                            url: 'https://nominatim.openstreetmap.org/search?format=json&q={s}',
+                            jsonpParam: 'json_callback',
+                            propertyName: 'display_name',
+                            propertyLoc: ['lat','lon'],
+                            marker: L.circleMarker([0,0],{radius:30}),
+                            autoCollapse: true,
+                            autoType: false,
+                            minLength: 2
+                       })
+             );
+
+
+        //map.addControl(controlSearch );
+        //var hash = L.hash(map);
+                
+        //gpsLocate.start();
+        
+        
+        //var homeExtent = L.control.defaultExtent({}).addTo(map);
+        //var fullscreen = L.control.fullscreen().addTo(map);
+
+        ////////////////////////////////////////////////////////////////////////////////////////////
+         //////////////////////////////////////////////
+        // custom control to delete all the features in the map draw using the draw control above.
+        /*var gpsTrackControl = L.Control.extend({
+ 
+          options: {
+            position: 'bottomright' 
+            //control position - allowed: 'topleft', 'topright', 'bottomleft', 'bottomright'
+          },
+
+          onAdd: function (map) {
+                var container = L.DomUtil.create('div', 'gps-track leaflet-bar leaflet-control leaflet-control-custom');
+                container.style.backgroundColor = 'white';     
+                container.style.backgroundImage = "url(css/img/gps-icon.png)";
+                container.style.backgroundPosition ="0 0";
+                container.style.backgroundSize ="103% auto";
+                //container.style.backgroundSize = "30px 30px";
+                container.style.width = '30px';
+                container.style.height = '30px';
+                container.onclick = function(){
+                    console.log(map.hasLayer());
+                }
+            return container;
+          }
+        });*/
+        var gpsLocate = L.control.locate({follow: true, locateOptions: {watch:true,enableHighAccuracy: true}}).addTo(map);
+
+        var button = new L.Control.Button('', {
+            position:'bottomright',
+            className:'gpstoggle',
+            toggleButton: 'active'
+        });
+        button.addTo(map);
+        var gpsbtn = document.getElementsByClassName('gpstoggle');
+           
+        button.on('click', function () {
+            if (button.isToggled()) {
+                gpsbtn[0].style.backgroundImage = "url(css/img/gps-icon.png)";
+                gpsbtn[0].style.cursor = "pointer";
+                gpsbtn[0].style.backgroundPosition = "0 0";
+                gpsbtn[0].style.backgroundSize = "103% auto";
+                gpsLocate.stop();
+                console.log("off")
+            } else {
+                console.log("on")
+                //console.log(gpsbtn);
+                //console.log(gpsbtn[0].style.cursor);
+                gpsbtn[0].style.backgroundImage = "url(css/img/gps-icon.png)";
+                gpsbtn[0].style.cursor = "pointer";
+                gpsbtn[0].style.backgroundPosition = "0 28px";
+                gpsbtn[0].style.backgroundSize = "103% auto";
+                gpsLocate.start();
+                var mytrack=L.mytrack({click:location.search?true:false}).addTo(map)  //{click:false}  //querstringparameter ?1 draw track  //must be named mytrack!
+                console.log(mytrack);
+            }
+            return gpsbtn;
+        });
+        
+        ///map.addControl(new gpsTrackControl());
+        
+        ////////////////////////////////////////////////
+	/*	function onMapClick(e) {
+        popup
+            .setLatLng(e.latlng)
+            .setContent("you clicked: " + e.latlng.toString())
+            .openOn(map);
+        }
+        map.on('click', onMapClick);*/
+		
+		
+		/* 
+        //this will lock the zoom on the scroll
+        map.on('click', function() {
+			if (map.scrollWheelZoom.enabled()) {
+			map.scrollWheelZoom.disable();
+			}
+			if (!map.hasLayer(geojson)){
+			 info.getContainer().innerHTML='';
+			//this.info.removeFrom(map);	
+			}
+		 /*	if (!map.scrollWheelZoom.enabled()){
+			map.scrollWheelZoom.enable();
+			}*/
+		  /*});*/
+		
+		/* // this will unlock the scroll zoom.
+        map.on('contextmenu', function() {
+			if (!map.scrollWheelZoom.enabled()) {
+			map.scrollWheelZoom.enable();
+			}
+		 	if (!map.scrollWheelZoom.enabled()){
+			map.scrollWheelZoom.enable();
+			}
+		  });*/
+		
+		if (!map.hasLayer(geojson)){
+				
+			 info.getContainer().innerHTML='	';
+			//this.info.removeFrom(map);	
+		}
+		
+		L.control.scale().addTo(map);
+		
+		// detect fullscreen toggling
+		/*map.on('enterFullscreen', function(){
+			if(window.console) window.console.log('enterFullscreen');
+		});
+		map.on('exitFullscreen', function(){
+			if(window.console) window.console.log('exitFullscreen');
+		});
+		*/
+		
+        
+        
+		function onMapClick(e) {
+			popup
+				.setLatLng(e.latlng)
+				.setContent("You clicked the map at " + e.latlng.toString())
+				.openOn(map);
+		}
+		//mouse move will pout the x and y on the botton and click would pop up the coordinates
+		//map.on('click', onMapClick);
+		/*map.on('mousemove', function(e) {
+			var div = document.getElementById('coord');
+
+			div.innerHTML = 'Lat Long: ' + e.latlng.lat + ',' + e.latlng.lng; 
+			console.log(e.latlng.lat);
+		})*/
+        map.on('mousemove', function(e) {      
+            var coords = document.getElementById('coord');
+            
+        	coords.innerHTML = 'LAT: '+ (e.latlng.lat).toFixed(3) +' LON: '+(e.latlng.lng).toFixed(3);
+            //console.log(e.prop);   
+            /*console.log(e.latlng.lat);
+            console.log(e.latlng.lng);*/
+        })
+          
+	</script>  
+</body>
+</html>	
