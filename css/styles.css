@@ -94,7 +94,7 @@
 /* on selector per rule as explained here : http://www.sitepoint.com/html5-full-screen-api/ */
 
 .map{
-    width: 100%;
+    width: 100vw;
     height:100%;
     position: absolute;
     margin: -10px -10px ;    
