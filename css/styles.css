@@ -134,3 +134,22 @@
 	left: 0px !important; 
 	z-index: 99999;
 }
+
+
+@media screen and (max-width: 640px) {
+    /* 640 for example */
+    
+    .dragdrop{
+        display: none;
+    }
+    
+    .export{
+        bottom: 60px;
+        left: 60px;
+    }
+    
+    .leaflet-retina .fullscreen-icon{
+        display: none;
+    }
+    
+}
