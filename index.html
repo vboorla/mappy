@@ -15,7 +15,8 @@
 	<link rel="stylesheet" href="css/Control.FullScreen.css" type="text/css"/>
 	<link rel="stylesheet" href="css/leaflet-search.css" type="text/css"/>
     <link rel="stylesheet" href="css/styles.css" type="text/css"/>
-    
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
     <!--<script type='text/javascript'  src="leaflet-1.0.0-b1/leaflet.js"></script>-->
     
 
@@ -26,12 +27,15 @@
     <script type="text/javascript" src="js/leaflet-providers.js"></script>
     <script type="text/javascript" src="js/myTracks.js"></script>
     <script type="text/javascript" src="js/L.Control.Button.js"></script>
+    <script type="text/javascript" src="js/L.Control.Slider.js"></script>
     <script type="text/javascript" src="https://cdn.rawgit.com/calvinmetcalf/leaflet.shapefile/gh-pages/leaflet.shpfile.js"></script>
     <script type="text/javascript" src="https://cdn.rawgit.com/calvinmetcalf/shapefile-js/gh-pages/dist/shp.js"></script>
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyADoqyPFr7m5Z7tWPOJL7agysPd-5Pw-4E" async defer></script>
     <script type="text/javascript" src='https://unpkg.com/leaflet.gridlayer.googlemutant@latest/Leaflet.GoogleMutant.js'></script>
-
-
+    
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js" integrity="sha256-T0Vest3yCU7pafRw9r+settMBX6JkKN06dqBnpQ8d30=" crossorigin="anonymous"></script>
+    
 
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw-src.js"></script>
     <!--<script src="https://cdn.onemap.sg/leaflet/onemap-leaflet.js"></script>-->
@@ -205,7 +209,7 @@
 						center: [1.28826, 103.8178],
 						zoom: 15,
 						layers: [onemap],
-                        drawControl: true,
+                        drawControl: false,
                         fullscreenControl: true,
                         forceSeparateButton: true,
 						fullscreenControlOptions: { // optional
@@ -216,6 +220,11 @@
 
 		
 		var lc = L.control.layers(baseMaps, {"Google Satellite": satellite, "Walking Path":geojson}).addTo(map);
+        
+        var opacitySlider = new L.Control.opacitySlider();
+        
+        
+
         
 		function highlightFeature(e) {
 			var layer = e.target;
@@ -261,7 +270,8 @@
          });
          map.addControl(drawControl);*/
         
-		var info = L.control();
+		
+        var info = L.control();
 
 		info.onAdd = function (map) {
 			this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
@@ -412,9 +422,17 @@
         var featureGroup = L.featureGroup().addTo(map);
 
         var drawControl = new L.Control.Draw({
-            draw:false,
+            draw:{
+                    polygon: false,
+                    polyline: true,
+                    circle:false,
+                    rectangle:false,
+                    circlemarker:false,
+                    marker: true
+            },
             edit: {
-                featureGroup: featureGroup
+                featureGroup: featureGroup,
+                edit: true
             }
         }).addTo(map);
         
@@ -532,6 +550,14 @@
         
         map.addControl(new deleteAllControl());
         ////////////////////////////////////////////////
+        // opacity control for google satellite layer only.
+        
+        map.addControl(opacitySlider);
+        
+        opacitySlider.setOpacityLayer(satellite);
+        
+        
+        
         //////////////////////////////////////////////
         // custom control to downlaod all the features in the map draw using the draw control above.
         document.getElementById('export').onclick = function(e) {
