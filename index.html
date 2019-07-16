@@ -21,16 +21,17 @@
 
 	<script type="text/javascript" src="js/leaflet-search.js"></script>
     <!--<script type="text/javascript" src="js/L.Control.Locate.js"></script>-->
-    <script type="text/javascript" src="js/india_district.JS"></script>
-	<script type="text/javascript" src="js/india_state.js"></script>
-    <script type="text/javascript" src="js/Ward_boun_84.js"></script>
-    <script type="text/javascript" src="js/us-states.js"></script>
+    <script type="text/javascript" src="js/Walking_Paths.js"></script>
 	<script type="text/javascript" src="js/Control.FullScreen.js"></script>
     <script type="text/javascript" src="js/leaflet-providers.js"></script>
     <script type="text/javascript" src="js/myTracks.js"></script>
     <script type="text/javascript" src="js/L.Control.Button.js"></script>
     <script type="text/javascript" src="https://cdn.rawgit.com/calvinmetcalf/leaflet.shapefile/gh-pages/leaflet.shpfile.js"></script>
     <script type="text/javascript" src="https://cdn.rawgit.com/calvinmetcalf/shapefile-js/gh-pages/dist/shp.js"></script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyADoqyPFr7m5Z7tWPOJL7agysPd-5Pw-4E" async defer></script>
+    <script type="text/javascript" src='https://unpkg.com/leaflet.gridlayer.googlemutant@latest/Leaflet.GoogleMutant.js'></script>
+
+
 
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw-src.js"></script>
     <!--<script src="https://cdn.onemap.sg/leaflet/onemap-leaflet.js"></script>-->
@@ -84,14 +85,23 @@
                 attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
             });
 		
-		var baseMaps = {
+		var satellite = L.gridLayer.googleMutant({
+                type: 'satellite'	// valid values are 'roadmap', 'satellite', 'terrain' and 'hybrid'
+            });
+        var road = L.gridLayer.googleMutant({
+                type: 'roadmap'	// valid values are 'roadmap', 'satellite', 'terrain' and 'hybrid'
+            });
+
+        var baseMaps = {
 							//"Map Quest": mapquest,
 							"OSM": osm,
 							"ESRI World Topo": esri_worldtopo,
 							"ESRI World Street":esri_worldstrt,
+                            "Google Roads": road,
                             "One Map":onemap,
                             "Stamen": stamen_bw,
                             "Stamen Watercolor" : watercolor
+                            
 						};
 
         
@@ -108,6 +118,15 @@
 				};
 		}
 		
+        function lstyle(feature) {
+			return {
+					weight: 2,
+					opacity: 1,
+					color: 'red',
+					dashArray: '3'
+				};
+		}
+        
 		function sstyle(feature) {
 			return {
 					fillColor: 'rgba(255, 75, 60, 0.93)', 
@@ -151,12 +170,12 @@
 			});            
 		}
 
-		geojson = L.geoJson(districtsData, {
-			style: style,
+		geojson = L.geoJson(walkingPathData, {
+			style: lstyle,
 			onEachFeature: onEachFeature
 		}); //.addTo(map);
 		
-		stategjson = L.geoJson(statesData, {
+		/*stategjson = L.geoJson(statesData, {
 					style: sstyle,
 					onEachFeature: onEachFeature
 				}); //.addTo(map);
@@ -164,7 +183,7 @@
 		wardsgjson = L.geoJson(wardsData, {
 					style: wstyle,
 					onEachFeature: onEachFeature
-				});//.addTo(map);
+				});//.addTo(map);*/
 		
         /*
 		L.marker([12.8, 77.634]).addTo(map)	
@@ -183,9 +202,9 @@
 		]).addTo(map).bindPopup("I am a polygon.");*/
 
 		var map = L.map('map',{
-						center: [12.91526, 77.6348],
-						zoom: 5,
-						layers: [osm],
+						center: [1.28826, 103.8178],
+						zoom: 15,
+						layers: [onemap],
                         drawControl: true,
                         fullscreenControl: true,
                         forceSeparateButton: true,
@@ -196,7 +215,7 @@
         
 
 		
-		var lc = L.control.layers(baseMaps, {"States":stategjson, "Districts":geojson, "Wards":wardsgjson}).addTo(map);
+		var lc = L.control.layers(baseMaps, {"Google Satellite": satellite, "Walking Path":geojson}).addTo(map);
         
 		function highlightFeature(e) {
 			var layer = e.target;
@@ -477,7 +496,7 @@
         var deleteAllControl = L.Control.extend({
  
           options: {
-            position: 'topleft' 
+            position: 'topright' 
             //control position - allowed: 'topleft', 'topright', 'bottomleft', 'bottomright'
           },
 
@@ -489,11 +508,22 @@
             container.style.width = '30px';
             container.style.height = '30px';
             container.onclick = function(){
-                console.log(map.hasLayer());
-                console.log(map);
+                console.log(ageojson);
+                if(ageojson){
+                    console.log("here");  
+                    lc.removeLayer(ageojson);
+                    ageojson.clearLayers();
+                    map.removeLayer(ageojson);
+                    
+                }
+                if(shplayer){
+                    lc.removeLayer(shplayer);
+                    shplayer.clearLayers();
+                    map.removeLayer(shplayer)
+                };    
                 //map.fitBounds(L.geojson.getBounds);
                 featureGroup.clearLayers();
-                console.log('All Features Deleted !!!');
+                //console.log('All Features Deleted !!!');
             }
             return container;
           }
@@ -545,29 +575,7 @@
 
         ////////////////////////////////////////////////////////////////////////////////////////////
          //////////////////////////////////////////////
-        // custom control to delete all the features in the map draw using the draw control above.
-        /*var gpsTrackControl = L.Control.extend({
- 
-          options: {
-            position: 'bottomright' 
-            //control position - allowed: 'topleft', 'topright', 'bottomleft', 'bottomright'
-          },
-
-          onAdd: function (map) {
-                var container = L.DomUtil.create('div', 'gps-track leaflet-bar leaflet-control leaflet-control-custom');
-                container.style.backgroundColor = 'white';     
-                container.style.backgroundImage = "url(css/img/gps-icon.png)";
-                container.style.backgroundPosition ="0 0";
-                container.style.backgroundSize ="103% auto";
-                //container.style.backgroundSize = "30px 30px";
-                container.style.width = '30px';
-                container.style.height = '30px';
-                container.onclick = function(){
-                    console.log(map.hasLayer());
-                }
-            return container;
-          }
-        });*/
+        // custom control to GPS Locate and tracking in the map draw using the draw control above.
         var gpsLocate = L.control.locate({follow: true, locateOptions: {watch:true,enableHighAccuracy: true}}).addTo(map);
 
         var button = new L.Control.Button('', {
