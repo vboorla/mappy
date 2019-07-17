@@ -4,8 +4,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
     <!--<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" >-->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"></script>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
     <script src="https://cdn.jsdelivr.net/leaflet.locatecontrol/0.52.0/L.Control.Locate.min.js"></script>
@@ -440,51 +440,62 @@
         map.on('draw:created', function (e) {
             console.log('created feature')
                 // Each time a feaute is created, it's added to the over arching feature group
-            featureGroup.addLayer(e.layer);
+            //featureGroup.addLayer(e.layer);
             
-            /*var layer = event.layer
+            var layer = e.layer
             var feature = layer.feature = layer.feature || {};
             feature.type = feature.type || "Feature";
             var props = feature.properties = feature.properties || {};
-            props.desc = 'awesome description!';
-            props.ara = 0;
-            props.test = 'hey'
-            drawnItems.addLayer(layer);
-            addPopup(layer);*/
+            props.type = 'gps';
+            props.ramp = 'no';
+            props.steps = 'no'
+            featureGroup.addLayer(layer);
+            addPopup(layer);
         });
         
-       /* function createCustomElementFromProperties(properties){
+        function createCustomElementFromProperties(properties){
             console.log('creating custom elements from properties')
             var content = document.createElement("div");
+            //console.log(properties)
             for(var property in properties){
+                //console.log(property);
+                var tmpnode1 = document.createElement("label");
+                tmpnode1.innerHTML = property + '    :';
+                content.appendChild(tmpnode1);
+                console.log(tmpnode1);
                 var tmpnode = document.createElement("input");
-                tmpnode.value = properties[property]
-                tmpnode.j_type = property
-                content.appendChild(tmpnode)
+                tmpnode.value = properties[property] +'</br>'
+                tmpnode.j_type = property 
+                console.log(tmpnode);
+                content.appendChild(tmpnode);
+                var tmpnode2 = document.createElement("br");
+                content.appendChild(tmpnode2);
             }
+            console.log(content)
             return content
-        }*/
+        }
 
-        /*function RetrieveObjFromCustomElement(custom_element){
+        function RetrieveObjFromCustomElement(custom_element){
             console.log('retrieving custom elements from properties...')
             var tmpobj = {};
             for(var i = 0; i < custom_element.childNodes.length; i++){
+                
                 var j_type = custom_element.childNodes[i].j_type
                 tmpobj[j_type] = custom_element.childNodes[i].value
             }
             return tmpobj
-        }*/
+        }
 
-        /*function FillCustomElementFromProperties(tmpobject, custom_element){
+        function FillCustomElementFromProperties(tmpobject, custom_element){
           console.log('filling element with existing data...')
           for(var i = 0; i < custom_element.childNodes.length; i++){
             var j_type = custom_element.childNodes[i].j_type
             custom_element.childNodes[i].value = tmpobject[j_type]
           }
             return custom_element
-        }*/
+        }
 
-        /*function addPopup(layer) {
+        function addPopup(layer) {
             var content = createCustomElementFromProperties(layer.feature.properties)
           content.addEventListener("keyup", function () {
             layer.feature.properties = RetrieveObjFromCustomElement(content);
@@ -494,7 +505,7 @@
             content.focus();
           });
           layer.bindPopup(content).openPopup();
-        }*/
+        }
         
         /*var sample_geojson_string =  '{"type": "FeatureCollection", "features":[{"type": "Feature","geometry": {"type": "Point","coordinates": [35.961, 31.943]},"properties": {"desc": "Dinagat Islands", "ara": 10, "test": "blablabla"}}, {"type": "Feature","geometry": {"type": "Point","coordinates": [35.951, 31.933]},"properties": {"desc": "Some cool place", "ara": 101, "test": "tt"}}]}'
 
